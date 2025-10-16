@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "../../../constants/httpConstants";
+import { auth } from "../../../../config/firebaseConfig";
+import { UserRecord } from "firebase-admin/auth";
 
 /**
  * Controller to get the user profile.
@@ -8,11 +10,11 @@ import { HTTP_STATUS } from "../../../constants/httpConstants";
  * @param res - Response object to send the user profile response.
  * @param next - Next middleware function.
  */
-export const getUserProfile = (
+export const getUserProfile = async(
     req: Request,
     res: Response,
     next: NextFunction
-): void => {
+): Promise<void> => {
     try {
         // This will be set by your authentication middleware
         const userId: string = res.locals.uid;
@@ -22,6 +24,8 @@ export const getUserProfile = (
                 error: "User not authenticated",
             });
         }
+
+        const UserRecord: UserRecord = await auth.getUser(userId);
 
         res.status(HTTP_STATUS.OK).json({
             message: `User profile for user ID: ${userId}`,
